@@ -1,0 +1,17 @@
+# OAuth Client ID and Secret
+# see https://support.talis.com/hc/en-us/articles/208221125-Using-Talis-JSON-APIs
+clientID::
+secret::
+# Talis GUID for user who is updating records
+talisUID::
+# tenancy URL e.g. https://rl.talis.com/3/<ID>/
+baseURL::
+# Only used in the logs, so URLs are usable e.g. https://<ID>.rl.talis.com/
+webBaseURL::
+# String in URL to match on e.g. shibboleth2sp.gar.semcs.net
+matchString::
+# The new URL string: http://www.vlebooks.com/vleweb/product/openreader?id=Herts&isbn=
+replacementURL::
+# The regular expression pattern you want to capture the info with
+# needs to contain a back reference e.g. https.*isbn%25253D(.*)
+regexPattern::
