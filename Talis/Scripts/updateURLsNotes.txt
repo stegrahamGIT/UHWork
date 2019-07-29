@@ -51,7 +51,7 @@ The captured ISBN is concatenated to the end of the replacementURL config value 
 
 http://www.vlebooks.com/vleweb/product/openreader?id=Herts&isbn=9781316665343
 
-The same is doen to the URLs in the web_addresses array.
+The same is done to the URLs in the web_addresses array.
 
 These URLs are used in the data posted back to the Talis API to update the record e.g (the ID is the resource ID):
 
