@@ -45,6 +45,7 @@ Using the items IDs in the provided file, the script create a unique hash of res
 web_addresses - can be more than one, so is saved in an array
 online_resource->link - saved in a simple scalar variable
 
+
 The online_resource URL is checked against the matchString config value to see if this value is contained within the URL. So, for example, if the matchString value is 
 
 shibboleth2sp.gar.semcs.net 
