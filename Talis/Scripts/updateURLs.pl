@@ -29,17 +29,22 @@ my $webBaseURL = $config{"webBaseURL"};
 my $oldURLMatch = $config{"matchString"};
 my $newURL = $config{"replacementURL"};
 my $regexPattern = $config{"regexPattern"};
+my $itemIDFile = $config{"itemIDFile"};
 
-# read items IDs from file
+# read items IDs from file and store in an array
 my @itemIDs;
-my $itemIDFile = "talisitemIDs.txt";
-open (ITEMS, "<$itemIDFile");
-while (<ITEMS>) {
-    next if ($_ =~ m/^#/); # ignore comments
-	chomp $_;
-	push @itemIDs, $_;
+if (-e $itemIDFile) {
+	open (ITEMS, "<$itemIDFile");
+	while (<ITEMS>) {
+		next if ($_ =~ m/^#/); # ignore comments
+		chomp $_;
+		push @itemIDs, $_;
+	}
+	close ITEMS;
+} else {
+	print "Cannot find item ID file: $itemIDFile\n";
+	exit;
 }
-close ITEMS;
 
 my $logFile = "talisChangeLog.txt";
 open (LOG, ">$logFile");
@@ -83,11 +88,8 @@ foreach my $resourceID (keys %resourceIDHash) {
 	my $endpoint = $baseURL . 'resources/' . $resourceID;
 	print LOG "Resource endpoint is $endpoint\n";
 	my %addresses = &getWebAddress($endpoint,$globalToken);
-	
-	if ($UPDATE) {
-		&changeURL(\%addresses,$oldURLMatch,$newURL,$regexPattern,$endpoint,$globalToken,$resourceID,$talisGUID);
-		sleep 1;
-	}
+	&changeURL(\%addresses,$oldURLMatch,$newURL,$regexPattern,$endpoint,$globalToken,$resourceID,$talisGUID);
+	sleep 1;
 }
 
 close LOG;
@@ -341,29 +343,33 @@ sub changeURL($$$$$$$$) {
 	
 		print LOG "Sending change:" . $changeString . "\n";
 		print LOG "Sending request to $link\n";
+		
+		if ($UPDATE) {
 	
-		my %header = (
+			my %header = (
 				'Content-Type' => 'application/json',
 				'Authorization' => 'Bearer ' . $token,
 				'X-Effective-User' => $userID,
 				'cache-control' => 'no-cache'
-		);
+			);
 	
-		my $ua = Mojo::UserAgent->new;
-		my $res = $ua->patch($link => \%header => $changeString)->result;
+			my $ua = Mojo::UserAgent->new;
+			my $res = $ua->patch($link => \%header => $changeString)->result;
 
-		if ($res->is_success) {
-			# what do we want to do - anything?
-			# just print to log for the time being
-			print LOG $res->body;
-			print LOG "\n\n\n";
-		} else {
-			print LOG "##########\n";
-			print LOG "ERROR\n";
-			print LOG $res->body;
-			print LOG $res->message;
-			print LOG "\n########\n";
+			if ($res->is_success) {
+				# what do we want to do - anything?
+				# just print to log for the time being
+				print LOG $res->body;
+				print LOG "\n\n\n";
+			} else {
+				print LOG "##########\n";
+				print LOG "ERROR\n";
+				print LOG $res->body;
+				print LOG $res->message;
+				print LOG "\n########\n";
+			}
 		}
+		
 	} else {
 		print ERROR "Not updated: Cannot find ISBN for " . $resourceID . "\n";
 	} 
