@@ -84,15 +84,24 @@ These URLs are used in the data posted back to the Talis API to update the recor
 }
 ```
 
+Token Management
+-----------------
+Tokens are set to expire after 1 hour (3600 seconds), but sometimes - if updating lots of URLs - the job may take longer than an hour. To deal with this, when the token is initially retrived, a global variable called $tokenExpiryTime is set. This is the current time in epoch seconds with 3300 seconds added on to it. i.e. 55 mins into the future. Before every API call we check the current time aginst the time in the $tokenExpiryTime variable. If the current time is greater, then we know that 55 mins has passed and the token will expire within 5 minutes, we retreive a new token and reset the $tokenExpiryTime value to 55 mins into the future again.
+
+Log Files
+----------------
+
 Two log files are created:
 
 talisChangeLog.txt - tries to capture all useful info for troubleshooting etc
+
 talisERRORlog.txt - all errors, problems getting IDs, updating etc
 
 Modules required
 ----------------
 
 Modern::Perl
+
 Mojo::UserAgent (i.e. Mojolicious) 
 
 see https://rl.talis.com/3/docs for Talis API doc and more information
