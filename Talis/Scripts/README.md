@@ -21,11 +21,12 @@ Workflow
 
 Step 1: Use the "All List Items" report from the Talis admin area to download a list of all items. Filter this list in Excel to show only VLE Book records. Copy the Items IDs into a text file - each ID seperated by a line return. This file is referenced in the config file with the itemIDFile value.
 
-Step 2: Make sure that all the values in the config file have been entered - oauth credentials, files names, URLs and regex patterns. This file is passed to the script at the first cmd line arg.
+Step 2: Make sure that all the values in the config file have been entered - oauth credentials, file names, URLs and regex patterns. This file is passed to the script as the first cmd line argument.
 
 Step 3: run the script. The script requires two arguments:
 
 arguement one - the name/path of the config file populated in step 2.
+
 arguement two - either 'test' or 'update'. Test does everything apart from actually update the record. (Might be useful for testing? - the log file contains lots of info)
 
 To run the script in test mode with a config file called UHConfigFile.txt:
