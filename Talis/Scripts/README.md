@@ -56,7 +56,9 @@ https://shibboleth2sp.gar.semcs.net/Shibboleth.sso/Login?entityID=https%3A%2F%2F
 
 then there would be a match. If there is a match then the regexPattern config value is used to capture the ISBN. The regex needs to contain a back reference so it can be captured in Perls inbuilt $1 variable (https://perldoc.perl.org/perlretut.html#Backreferences). Example:
 
+```
 https.*isbn%25253D(.*)
+```
 
 for the above URL would capture 9781316665343.
 
