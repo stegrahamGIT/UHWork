@@ -19,7 +19,7 @@ The script uses a regular expression to retrieve the ISBN from the original URL,
 Workflow
 --------
 
-Step 1: Use the "All List Items" report from the Talis admin area to download a list of all items. Filter this list in Excel to show only VLE Book records. Copy the Items IDs into a file. This file is referenced in the config file with the itemIDFile value.
+Step 1: Use the "All List Items" report from the Talis admin area to download a list of all items. Filter this list in Excel to show only VLE Book records. Copy the Items IDs into a text file - each ID seperated by a line return. This file is referenced in the config file with the itemIDFile value.
 
 Step 2: Make sure that all the values in the config file have been entered - oauth credentials, files names, URLs and regex patterns. This file is passed to the script at the first cmd line arg.
 
