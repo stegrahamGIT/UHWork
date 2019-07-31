@@ -25,9 +25,9 @@ Step 2: Make sure that all the values in the config file have been entered - oau
 
 Step 3: run the script. The script requires two arguments:
 
-arguement one - the name/path of the config file populated in step 2.
+argument one - the name/path of the config file populated in step 2.
 
-arguement two - either 'test' or 'update'. Test does everything apart from actually update the record. (Might be useful for testing? - the log file contains lots of info)
+argument two - either 'test' or 'update'. Test does everything apart from actually update the record. (Might be useful for testing? - the log file contains lots of info)
 
 To run the script in test mode with a config file called UHConfigFile.txt:
 
