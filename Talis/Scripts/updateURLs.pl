@@ -1,22 +1,15 @@
 use Modern::Perl;
 use Mojo::UserAgent;
 
-# 1 will update
-# 0 will do everything else but will not update
-my $UPDATE = 1;
-my $LIVE = 1;
+my $tokenExpiryTime;
 
-my $tokenURL = "https://users.talis.com/oauth/tokens";
-my $configFile;
+# check to see if the correct cmd args have been provided
+my $configArgs = &checkArgs(\@ARGV);
+
+my $UPDATE = ${$configArgs}{"updateStatus"};
+my $configFile = ${$configArgs}{"configFile"};
+
 my %config;
-
-if ($LIVE) {
-	print "Updating items for the live environment\n";
-	$configFile = "liveConfig.txt";
-} else {
-	print "Updating items for the sandbox environment\n";
-	$configFile = "sandboxConfig.txt";
-}
 
 # populate config hash
 open (CONFIG, "<$configFile");
@@ -27,9 +20,10 @@ while (<CONFIG>) {
 }
 close CONFIG;
 
+my $tokenURL = $config{"tokenURL"};
 my $clientID = $config{"clientID"};
 my $secret = $config{"secret"};
-my $talisUID = $config{"talisUID"};
+my $talisGUID = $config{"talisGUID"};
 my $baseURL = $config{"baseURL"};
 my $webBaseURL = $config{"webBaseURL"};
 my $oldURLMatch = $config{"matchString"};
@@ -53,12 +47,9 @@ open (LOG, ">$logFile");
 my $errorFile = "talisERRORLog.txt";
 open (ERROR, ">$errorFile");
 
-# get the token - remember this will only last for 1 hour
-# if the update will last longer then the script will fail
-# at the hour mark.
-my $token = &getToken($tokenURL,$clientID,$secret);
+my $globalToken = &getToken($tokenURL,$clientID,$secret);
 
-if (! defined $token) {
+if (! defined $globalToken) {
 	print "Cannot find token - token undefined\n";
 	exit;
 }
@@ -75,7 +66,7 @@ foreach my $item (@itemIDs) {
 	my $endpoint = $baseURL . 'items/' . $item;
 	print LOG "Item endpoint is $endpoint\n";
 	print LOG "Web URL: " . $webBaseURL . "items/" . $item . "\n";
-	my $resourceID = &getResourceID($endpoint,$token);
+	my $resourceID = &getResourceID($endpoint,$globalToken);
 	if (defined $resourceID) {
 		print LOG "The resource ID is $resourceID\n";
 		$resourceIDHash{$resourceID} = $resourceID;
@@ -91,10 +82,10 @@ foreach my $resourceID (keys %resourceIDHash) {
 	print $resourceCount . "\n";
 	my $endpoint = $baseURL . 'resources/' . $resourceID;
 	print LOG "Resource endpoint is $endpoint\n";
-	my %addresses = &getWebAddress($endpoint,$token);
+	my %addresses = &getWebAddress($endpoint,$globalToken);
 	
 	if ($UPDATE) {
-		&changeURL(\%addresses,$oldURLMatch,$newURL,$regexPattern,$endpoint,$token,$resourceID,$talisUID);
+		&changeURL(\%addresses,$oldURLMatch,$newURL,$regexPattern,$endpoint,$globalToken,$resourceID,$talisGUID);
 		sleep 1;
 	}
 }
@@ -106,6 +97,53 @@ print "Processed $itemCount items\n";
 print "Processed $resourceCount resources\n";
 
 exit;
+
+###################
+
+sub checkArgs($) {
+
+	my $argArray = $_[0];
+	
+	my %statusHash = (
+		"update" => 1,
+		"test" => 0
+	);
+	
+	my %configHash;
+	
+	if ($#{$argArray} < 1) {
+		
+		print "Missing config file and/or update status\n";
+		print "To run this script do: perl " . $0 . " <configFile> (test|update)\n";
+		print "e.g. perl " . $0 . " talis.txt update\n";
+		exit;
+		
+	} else {
+		
+		if (-e ${$argArray}[0]) {
+			$configHash{"configFile"} = ${$argArray}[0];
+			if (defined ${$argArray}[1]) {
+				chomp(${$argArray}[1]);
+				if ((${$argArray}[1] =~ /test/i) || (${$argArray}[1] =~ /update/i)) {
+						$configHash{"updateStatus"} = $statusHash{${$argArray}[1]};
+				} else {
+						print ${$argArray}[1] . " is a unrecognised update status\n";
+						print "Needs to be either test or update\n";
+						exit;
+				}
+			} else {
+				print "Please specifiy if this is a test run or update\n";
+				print "For test run : perl " . $0 . " <configFile> test\n";
+				print "For real run: perl " . $0 . " <configFile> update\n";
+			}
+		} else {
+			print ${$argArray}[0] . " config file does does not exist\n";
+			exit;
+		}
+	}
+	
+	return \%configHash;
+}
 
 ###################
 
@@ -124,6 +162,8 @@ sub getToken($$$) {
 	if ($res->is_success) {
 		my $record = $res->json;
 		$token = ${$record}{"access_token"};
+		$tokenExpiryTime = time + 3300; # 55 mins
+		print LOG "Token is $token\n";
 	} else {
 		print "Cannot retrieve token - see logs\n";
 		print LOG "Cannot retrieve token\n";
@@ -145,6 +185,14 @@ sub getResourceID($$) {
 
 	my $endpoint = $_[0];
 	my $token = $_[1];
+	
+	if (time > $tokenExpiryTime) {
+		print LOG "The token has expired - get a new one\n";
+		# using the global vars to pass to getToken 
+		# rather than ones passed to this method
+		$globalToken = &getToken($tokenURL,$clientID,$secret);
+		$token = $globalToken;
+	} 
 	
 	my $resourceID = undef;
 	
@@ -175,6 +223,14 @@ sub getWebAddress($$) {
 
 	my $endpoint = $_[0];
 	my $token = $_[1];
+	
+	if (time > $tokenExpiryTime) {
+		print LOG "The token has expired - get a new one\n";
+		# using the global vars to pass to getToken 
+		# rather than ones passed to this method
+		$globalToken = &getToken($tokenURL,$clientID,$secret);
+		$token = $globalToken;
+	} 
 	
 	my %addresses;
 	
@@ -216,6 +272,14 @@ sub changeURL($$$$$$$$) {
 	my $token = $_[5];
 	my $resourceID = $_[6];
 	my $userID = $_[7];
+	
+	if (time > $tokenExpiryTime) {
+		print LOG "The token has expired - get a new one\n";
+		# using the global vars to pass to getToken 
+		# rather than ones passed to this method
+		$globalToken = &getToken($tokenURL,$clientID,$secret);
+		$token = $globalToken;
+	} 
 	
 	my $resourceisbn = "ISBN";
 	
