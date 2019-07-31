@@ -43,8 +43,8 @@ What the script does
 Using the items IDs in the provided file, the script create a unique hash of resource IDs. The resources IDs are iterated over and two URLs retrieved from the Talis JSON record:
 
 web_addresses - can be more than one, so is saved in an array
-online_resource->link - saved in a simple scalar variable
 
+online_resource->link - saved in a simple scalar variable
 
 The online_resource URL is checked against the matchString config value to see if this value is contained within the URL. So, for example, if the matchString value is 
 
