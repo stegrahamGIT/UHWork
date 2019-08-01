@@ -10,8 +10,8 @@ talisGUID::
 itemIDFile::
 # tenancy URL e.g. https://rl.talis.com/3/<ID>/
 baseURL::
-# Only used in the logs, so URLs are usable
-webBaseURL::https://<ID>.rl.talis.com/
+# Only used in the logs, so URLs are usable e.g. https://<ID>.rl.talis.com/
+webBaseURL::
 # String in URL to match on e.g. shibboleth2sp.gar.semcs.net
 matchString::
 # The new URL string: http://www.vlebooks.com/vleweb/product/openreader?id=Herts&isbn=
