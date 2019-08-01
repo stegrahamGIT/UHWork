@@ -6,6 +6,8 @@ clientID::
 secret::
 # Talis GUID for user who is updating records
 talisGUID::
+# File that contains the list of Items IDs that we want to update
+itemIDFile::
 # tenancy URL e.g. https://rl.talis.com/3/<ID>/
 baseURL::
 # Only used in the logs, so URLs are usable
