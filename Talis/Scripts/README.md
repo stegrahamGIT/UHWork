@@ -31,11 +31,15 @@ argument two - either 'test' or 'update'. Test does everything apart from actual
 
 To run the script in test mode with a config file called UHConfigFile.txt:
 
+```
 perl updateURLs.pl UHConfigFile.txt test
+```
 
 To run the script in update mode with a config file called UHConfigFile.txt:
 
+```
 perl updateURLs.pl UHConfigFile.txt update
+```
 
 What the script does
 --------------------
